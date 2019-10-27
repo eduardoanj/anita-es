@@ -1,0 +1,88 @@
+#### PERSON(DA0)CRUD COMENTADO ####
+
+import MySQLdb
+from model.person import Person
+
+#========== Classe para acesso ao banco de dados 
+#========== para a classe/tabela Person/Pessoa
+class PersonDao:
+    #----- construtor da class para iniciar conexao com o banco
+    def __init__(self):
+        pass
+    #----- Lista todos os dados da tabela pessoa
+    def list_all(self):
+        connection = MySQLdb.connect(
+                                        host="mysql.zuplae.com"
+                                        ,user="zuplae04"
+                                        ,passwd="lendas19"
+                                        ,database="zuplae04"
+                                    )
+        cursor = connection.cursor()
+        cursor.execute("SELECT ID, NOME, SOBRENOME FROM PESSOA")
+        list_person = []
+        for p in cursor.fetchall():
+            person = Person( p[1] ,p[2], p[0] )
+            list_person.append(person.__dict__)
+        connection.close()
+        return list_person
+        
+
+
+    #----- Lista uma unica pessoa, filtrando pela coluna ID 
+    def person_by_id(self, id):
+        connection = MySQLdb.connect(
+                                        host="mysql.zuplae.com"
+                                        ,user="zuplae04"
+                                        ,passwd="lendas19"
+                                        ,database="zuplae04"
+                                    )
+        cursor = connection.cursor()
+        cursor.execute(f"SELECT ID, NOME, SOBRENOME FROM PESSOA WHERE ID = {id}")
+        p = cursor.fetchone()
+        person = Person( p[1] ,p[2], p[0] )
+        connection.close()
+        return person.__dict__
+    #----- Insere um novo registro na tabela PESSOA
+    def create(self, person:Person):
+        connection = MySQLdb.connect(
+                                        host="mysql.zuplae.com"
+                                        ,user="zuplae04"
+                                        ,passwd="lendas19"
+                                        ,database="zuplae04"
+                                    )
+        cursor = connection.cursor()
+        cursor.execute(f"INSERT INTO PESSOA ( NOME, SOBRENOME) VALUES('{ person.first_name}','{ person.last_name}')")
+        person.id = cursor.lastrowid
+        connection.commit()
+        connection.close()
+
+        return person.__dict__
+
+    #----- Altera um registro na tabela PESSOA
+    def update(self, person:Person):
+        connection = MySQLdb.connect(
+                                        host="mysql.zuplae.com"
+                                        ,user="zuplae04"
+                                        ,passwd="lendas19"
+                                        ,database="zuplae04"
+                                    )
+        cursor = connection.cursor()
+        cursor.execute( f"UPDATE PESSOA SET NOME ='{ person.first_name}', SOBRENOME = '{ person.last_name}' WHERE ID = {person.id}")
+        connection.commit()
+        connection.close()
+        return person.__dict__
+
+    #----- Exclui um registro na tabela PESSOA
+    def delete(self, id:int):
+        connection = MySQLdb.connect(
+                                        host="mysql.zuplae.com"
+                                        ,user="zuplae04"
+                                        ,passwd="lendas19"
+                                        ,database="zuplae04"
+                                    )
+        cursor = connection.cursor()
+        cursor.execute(
+                        f"DELETE FROM PESSOA WHERE ID = {id}"
+                      )
+        connection.commit()
+        connection.close()

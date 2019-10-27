@@ -1,0 +1,36 @@
+##### INICIO DA CRIAÇÃO DE API ####
+
+
+# inicialmente deve-se baixar uma interface grafica para gerenciamento de APIs
+as duas prinsipais são a INSOMNIA e o POSTMAN.
+
+#o gerenciador escolhido foi o INSOMNIA, primeiramente deve-se criar uma pasta e um repositorio.
+
+#logo após cria 3 pastas principais (controllers, model, e dal) do lado de fora dastas 3 pastas voce deve criar um aquivo.py chamado start.
+
+#inicio da programação: primeiramente deve criar a classe que ficará na pasta model.
+	#após deve criar um arquivo "class_controller" que deverá ficar na pasta controllers, este arquivo criará uma nova classe chamada ClasseControler, neste arquivo tambem terá os metodos de get, put, post, e delete que serão usados na API.
+		*topo da pagina devem ser importados:
+			from flask_restful import Resource, reqparse
+			from model.person import Person
+			from dao.person_dao import PersonDao
+			***este ultimo só podera ser importado após o término do arquivo ClassDao
+
+	#neste momento será necessario criar o arquivo classe_dao na pasta dao, onde será criada outra classe, a ClasseDao neste arquivo serão criados os metodos que farão a conexão no banco de dados e cumprirão efetivamente os comandos dados pela api
+    	#primeiramente importe o MySQLdb e a classe Classe 
+    	from model.classe import Classe
+
+    #no arquivo start fazer os seguintes codigos
+    from flask import Flask
+	from flask_restful import Api, Resource
+	from flask_cors import CORS
+
+	app = Flask(__name__)
+	CORS(app)
+	api = Api(app)
+
+	api.add_resource(AssinanteController, '/api/assinante/', endpoint="assinantes")
+	api.add_resource(AssinanteController, '/api/assinante/<int:id>', endpoint="assinante")
+
+	app.run(debug=True, host="192.168.0.7", port="80")
+

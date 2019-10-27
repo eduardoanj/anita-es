@@ -1,0 +1,24 @@
+###### START (API) E CLASSE PERSON ######
+
+from flask import Flask
+from flask_restful import Api, Resource
+from flask_cors import CORS
+
+
+app = Flask(__name__)
+CORS(app)
+api = Api(app)
+
+api.add_resource(PersonController, '/api/person/', endpoint="people")
+api.add_resource(PersonController, '/api/person/<int:id>', endpoint="person")
+
+app.run(debug=True, host="192.168.0.221", port="80")
+
+
+###CLASSE###
+
+class Person:
+    def __init__(self, first_name, last_name, id=0):
+        self.id = id
+        self.first_name = first_name
+        self.last_name = last_name

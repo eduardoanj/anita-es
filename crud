@@ -1,0 +1,182 @@
+###### CRUD PYTHON #####
+
+
+##### LISTAR PLANOS #####
+def listar_planos_db():
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("SELECT * FROM PLANOS")
+    lista_planos = []
+    for i in cursor.fetchall():
+        plano = Planos()
+        plano.id = i[0]
+        plano.tipo = i[1]
+        lista_planos.append(plano)
+    conexao.close()
+    return lista_planos  
+
+
+    ##### BUSCAR PLANO POR ID #####
+def buscar_plano_por_id(id):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute('SELECT * FROM PLANOS WHERE id ={}'.format(id))
+    p = Planos()
+    for i in cursor.fetchall():
+        p.id = i[0]
+        p.tipo = i[1]
+    conexao.close()
+    return p   
+
+##### SALVAR USUARIO + PLANO NA TABELA #####
+def salvar_plano_db(plano:Planos):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("INSERT INTO USUARIO_PLANO (ID_USUARIO, ID_PLANO)" + 
+    " VALUES ('{}', '{}')"
+    .format(plano.usuario_id, plano.plano_id))
+    conexao.commit()
+    conexao.close()      
+
+##### SALVAR USUARIO + ITEM NA TABELA #####
+def salvar_plano_item_db(plano:Planos):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("INSERT INTO PLANO_ITEN (ID_ITEN, ID_PLANO)" + 
+    " VALUES ('{}', '{}')"
+    .format(plano.item_id, plano.plano_id))
+    conexao.commit()
+    conexao.close()    
+
+
+########## LISTA O PLANO DO USUARIO NA TABELA ASSOCIADOS ##########
+def listar_planos_usuarios_db():
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("SELECT p.ID as PLANO_ID, p.TIPO, u.ID , u.NOME , u.CEP, u.CPF FROM PLANOS as p"
+                 + " JOIN USUARIO_PLANO as up ON up.ID_PLANO = p.ID JOIN USUARIO as u  ON up.ID_USUARIO = u.ID") 
+    lista_planos= []
+    for p in cursor.fetchall():
+        plano = Planos()
+        plano.id = p[0]
+        plano.tipo = p[1]
+        plano.usuario.id = p[2]
+        plano.usuario.nome = p[3]
+        plano.usuario.cep = p[4]
+        plano.usuario.cpf = p[5]         
+        lista_planos.append(plano)
+
+    for plano in lista_planos:
+        cursor.execute("SELECT i.ID ,i.NOME ,i.QUANTIDADE FROM PLANO_ITEN as pit"
+                      +" JOIN ITENS as i ON pit.ID_ITEN = i.ID  WHERE pit.ID_PLANO = {}".format(plano.id) )
+        for pi in cursor.fetchall():   
+            item = Itens()
+            item.id = pi[0]
+            item.nome = pi[1]
+            item.quantidade = pi[2]
+            plano.itens.append(item)
+            
+    conexao.close()
+    return lista_planos 
+
+########## SALVAR USUARIO NO DB ##########
+def salvar_usuario_db(usuario:Usuario):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("INSERT INTO USUARIO (NOME, CEP, CPF, ENDERECO, CARTAO_DE_CREDITO, VALIDADE, COD_SEGURANCA)" + 
+    " VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}')"
+    .format(usuario.nome, usuario.cep, usuario.cpf, usuario.endereco, usuario.cartao, usuario.validade, usuario.codigo))
+    conexao.commit()
+    conexao.close()        
+
+########## ALTERAR USUARIO NO DB ##########
+def alterar_usuario_db(usuario:Usuario):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("UPDATE USUARIO SET NOME='{}', CEP='{}', CPF='{}', ENDERECO='{}', CARTAO_DE_CREDITO='{}', VALIDADE='{}', COD_SEGURANCA='{}' WHERE ID = {}"
+    .format(usuario.nome, usuario.cep, usuario.cpf, usuario.endereco, usuario.cartao, usuario.validade, usuario.codigo,  usuario.id))
+    conexao.commit() 
+    conexao.close()           
+
+########## DELETAR USUARIO DO DB ##########
+def deletar_usuario(id):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("DELETE FROM USUARIO_PLANO WHERE ID_USUARIO={}".format(id))
+    conexao.commit()
+    cursor.execute("DELETE FROM USUARIO WHERE id={}".format(id))
+    conexao.commit()
+    conexao.close()    
+
+########## FUNÇÃO AUXILIAR PARA BUSCAR USUÁRIO POR ID → USADA NAS FUNÇÕES DE ALTERAR E DELETAR ##########
+def buscar_usuario_por_id(id):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute('SELECT * FROM USUARIO WHERE id ={}'.format(id))
+    c = Usuario()
+    for i in cursor.fetchall():
+        c.id = i[0]
+        c.nome = i[1]
+        c.cep = i[2]
+        c.cpf = i[3]
+        c.endereco = i[4]
+        c.cartao = i[5]
+        c.validade = i[6]
+        c.codigo = i[7]
+    conexao.close()
+    return c
+
+########## LISTAR USUARIOS DO DB ##########
+def listar_usuarios_db():
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("SELECT * FROM USUARIO")
+    lista_usuario = []
+    for i in cursor.fetchall():
+        usuario = Usuario()
+        usuario.id = i[0]
+        usuario.nome = i[1]
+        usuario.cep = i[2]
+        usuario.cpf = i[3]
+        usuario.endereco = i[4]
+        usuario.cartao = i[5]
+        usuario.validade = i[6]
+        usuario.codigo = i[7]
+        lista_usuario.append(usuario)
+    conexao.close()
+    return lista_usuario  
+
+####### SALVAR ITEM NO BANCO DE DADOS ######
+def salvar_item_db(nome, quantidade):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("INSERT INTO ITENS (NOME, QUANTIDADE)" + 
+    " VALUES ('{}', '{}')" .format(nome, quantidade))
+    conexao.commit()
+    conexao.close()
+
+########## LISTAR ITENS DO DB ##########
+def listar_itens_db():
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("SELECT * FROM ITENS")
+    lista_itens = []
+    for i in cursor.fetchall():
+        item = Itens()
+        item.id = i[0]
+        item.nome = i[1]
+        item.quantidade = i[2]        
+        lista_itens.append(item)
+    conexao.close()
+    return lista_itens   
+
+########## DELETAR ITEM DO DB ##########
+def deletar_item(id):
+    conexao = MySQLdb.connect(host="mysql.zuplae.com", user="zuplae13", passwd="grupo08", database="zuplae13")
+    cursor = conexao.cursor()
+    cursor.execute("DELETE FROM PLANO_ITEN WHERE ID_ITEN = {}".format(id))
+    conexao.commit()
+    cursor.execute("DELETE FROM ITENS WHERE ID = {}".format(id))
+    conexao.commit()
+    conexao.close()        
+               

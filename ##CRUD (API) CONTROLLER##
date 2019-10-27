@@ -1,0 +1,37 @@
+###### CRUD DAO (API) PERSON_CONTROLER ######
+
+from flask_restful import Resource, reqparse
+from model.person import Person
+from dao.person_dao import PersonDao
+
+class PersonController(Resource):
+    def __init__(self):
+        self.dao = PersonDao()
+        self.req = reqparse.RequestParser()
+        self.req.add_argument("first_name")
+        self.req.add_argument("last_name")
+
+
+    def get(self, id=None):
+        if id is not None:
+            return self.dao.person_by_id(id)
+        return self.dao.list_all()
+
+    def post(self):
+        args = self.req.parse_args()
+        first_name = args['first_name']
+        last_name = args['last_name']
+        person = Person(first_name, last_name)
+        return self.dao.create(person), 201
+
+
+    def put(self, id):
+        args = self.req.parse_args()
+        first_name = args['first_name']
+        last_name = args['last_name']
+        person = Person(first_name, last_name, id)
+        return self.dao.update(person)
+
+    def delete(self, id):
+        self.dao.delete(id)
+        return 'Deletado Monstrao', 204
